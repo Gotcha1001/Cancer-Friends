@@ -40,13 +40,14 @@ const UserProfileSearchResults = () => {
                     searchResults.map(profile => (
                         <div key={profile.id}>
                             <Link to={`/profile/${profile.id}`}>
-                                <div className="bg-black text-white p-2 rounded-md shadow ml-4  transition-colors mb-3 ">
+                                <div className="gradient-background3 text-white p-1 border  border-white rounded-md shadow ml-4  mb-3">
+
                                     <h3 className="text-lg font-bold mb-2">{profile.name}</h3>
                                     {/* Display additional profile details as needed */}
                                 </div>
                             </Link>
                             <button
-                                className="bg-pink-950 ml-4 hover:bg-purple-400 zoom text-white font-bold py-2 mb-2 px-2 rounded focus:outline-none focus:shadow-outline"
+                                className="gradient-background2 ml-4 hover:bg-purple-900 zoom text-white font-bold py-2 mb-2 px-2 rounded focus:outline-none focus:shadow-outline"
                                 onClick={() => handleMessaging(profile)}
                             >
                                 Message

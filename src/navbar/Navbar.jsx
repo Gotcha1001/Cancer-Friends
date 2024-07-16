@@ -60,41 +60,42 @@ const Navbar = () => {
 
     return (
         <nav className="navbar bg-gray-800 text-white py-4">
-            <div className="container mx-auto flex flex-col md:flex-row md:justify-between items-center">
-                <div className="flex items-center md:flex-none mt-2">
-                    <Link to="/" className="zoom mr-14" onClick={playClickSound}>
+            <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
+                <div className="flex items-center justify-center md:justify-start w-full md:w-auto mt-2 md:mt-0">
+                    <Link to="/" className="zoom mr-0 md:mr-14" onClick={playClickSound}>
                         <img
                             src="/CancerNav.png"
                             alt="Logo"
-                            className="second-navbar-logo  rounded-md m-3 mr-7 w-33 md:w-32 lg:w-48 xl:w-56 h-auto md:h-10 lg:h-12 xl:h-16" // This applies specific styles for smaller screens
+                            className="second-navbar-logo rounded-md m-3 w-28 md:w-32 lg:w-48 xl:w-56 h-auto"
                         />
                     </Link>
                 </div>
 
                 <div className="md:flex-grow flex flex-col md:flex-row md:justify-between items-center md:items-stretch md:ml-4">
                     {user && (
-                        <form onSubmit={handleSearch} className="flex items-center ml-12 mt-8 md:mb-0">
-                            <input
-                                type="text"
-                                placeholder="Search profiles by name"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="bg-black rounded-l-md px-4 py-2 focus:outline-none"
-                            />
-                            <button type="submit" className="bg-gray-600 rounded-r-md px-4 py-2 hover:bg-gray-500">
-                                Search
-                            </button>
-                        </form>
+                        <div className="flex items-center justify-center md:justify-start md:ml-12 mt-8 md:mb-0 w-full md:w-auto">
+                            <form onSubmit={handleSearch} className="flex items-center ">
+                                <input
+                                    type="text"
+                                    placeholder="Search profiles by name"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="bg-black rounded-l-md px-4 py-2 focus:outline-none"
+                                    style={{ marginRight: 0 }} // Adjusted margin-right
+                                />
+                                <button type="submit" className="bg-gray-600 rounded-r-md px-4 py-2  hover:bg-gray-500">
+                                    Search
+                                </button>
+                            </form>
+                        </div>
                     )}
-
-
 
                     <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
                         {user && (
                             <>
                                 {user.email === adminEmail && (
                                     <div className="relative navbar-element" ref={adminDropdownRef}>
-                                        <button onClick={toggleAdminDropdown} className="bg-black rounded-md p-2  hover:text-blue-500">
+                                        <button onClick={toggleAdminDropdown} className="bg-black rounded-md p-2 hover:text-blue-500">
                                             Admin Actions
                                         </button>
                                         {isAdminDropdownOpen && (
@@ -158,7 +159,7 @@ const Navbar = () => {
                                         Inspire
                                     </NavLink>
                                 </div>
-                                <div className="navbar-element ">
+                                <div className="navbar-element">
                                     <NavLink
                                         to="videos"
                                         className={({ isActive }) =>
@@ -169,7 +170,7 @@ const Navbar = () => {
                                         Videos
                                     </NavLink>
                                 </div>
-                                <div className="navbar-element ">
+                                <div className="navbar-element">
                                     <NavLink
                                         to="profile"
                                         className={({ isActive }) =>
@@ -181,7 +182,7 @@ const Navbar = () => {
                                     </NavLink>
                                 </div>
                                 <div className="navbar-element-welcome">
-                                    <span className="text-white bg-teal-600  rounded-md hover:bg-black p-2 mb-3 md:mb-0 md:mr-2 sm:mr-4">{`Welcome, ${user.email}`}</span>
+                                    <span className="text-white bg-teal-600 rounded-md hover:bg-black p-2 mb-3 md:mb-0 md:mr-2 sm:mr-4">{`Welcome, ${user.email}`}</span>
                                 </div>
 
                                 <div className="navbar-element">
