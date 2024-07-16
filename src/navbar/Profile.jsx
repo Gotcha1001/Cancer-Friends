@@ -65,9 +65,8 @@ const Profile = () => {
 
             let posts = [];
             querySnapshot.forEach((doc) => {
-                // Inside fetchDailyPosts function where you populate posts
-                posts.push({ id: doc.id, ...doc.data(), likes: 0 }); // Initialize likes if not present
-
+                // Initialize likes from the database, if present
+                posts.push({ id: doc.id, ...doc.data(), likes: doc.data().likes || 0 });
             });
 
             setDailyPosts(posts);
@@ -75,6 +74,7 @@ const Profile = () => {
             console.error('Error fetching daily posts:', error);
         }
     };
+
 
     const fetchMessages = async (profileId) => {
         try {
@@ -169,6 +169,7 @@ const Profile = () => {
             console.error('Error liking post:', error);
         }
     };
+
 
 
 
