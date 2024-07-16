@@ -1,0 +1,524 @@
+/* Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles */
+
+@media (forced-colors: active) {
+  body {
+    background-color: Window;
+    color: WindowText;
+  }
+
+  .navbar,
+  .footer {
+    background-color: ButtonFace;
+    color: ButtonText;
+  }
+
+  .navbar-title a,
+  .footer-links a {
+    color: LinkText;
+  }
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  background: linear-gradient(300deg, #020006, #eeedf0, #000000);
+}
+
+#root {
+  flex: 1;
+}
+
+/* Navbar and Footer */
+.navbar,
+.footer {
+  background: linear-gradient(90deg, #570fd5, #050000);
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.navbar-title a,
+.footer-links a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.navbar-title a:hover,
+.footer-links a:hover {
+  color: #cccccc;
+}
+
+.navbar-links,
+.footer-links {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.navbar-links li,
+.footer-links li {
+  margin-left: 20px;
+}
+
+.navbar-links a,
+.footer-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.navbar-links a:hover,
+.footer-links a:hover {
+  color: #06b6d4;
+}
+
+/* Define the active link style */
+.active-link,
+.active-footer-link {
+  background-color: teal;
+  color: white !important;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 10px;
+    align-items: center; /* Center items vertically */
+  }
+
+  .navbar-element-welcome span {
+    margin-right: 5px; /* Smaller margin for smaller screens*/
+    margin-bottom: 10px;
+    font-size: 0.7rem;
+  }
+
+  .navbar-title {
+    margin-bottom: 10px;
+  }
+
+  .navbar-links {
+    flex-direction: column; /* Stack links vertically on small screens */
+    align-items: center; /* Center links horizontally on small screens */
+    margin-top: 10px; /* Add margin between links */
+  }
+
+  .navbar-links li {
+    margin: 10px 0; /* Adjust spacing between links */
+  }
+
+  .navbar-links a {
+    font-size: 1.2rem;
+  }
+
+  .footer {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-links li {
+    margin: 5px 0;
+  }
+
+  .footer-links a {
+    font-size: 1.2rem;
+  }
+}
+
+/* Media query for medium screens */
+@media (min-width: 769px) and (max-width: 1300px) {
+  .navbar {
+    padding: 1px 2px;
+    text-align: center;
+  }
+
+  .navbar-element a {
+    padding: 0 1px;
+  }
+
+  .navbar-element-welcome span {
+    background-color: transparent; /* Make background transparent */
+  }
+
+  .navbar-element .active-link {
+    background-color: transparent;
+
+    padding: 3px;
+  }
+}
+
+/* Additional Styles */
+
+/* Media Queries */
+@media (max-width: 768px) {
+  /* Adjust for smaller screens if necessary */
+  .navbar-element {
+    margin-right: 5px; /* Smaller margin for smaller screens */
+    margin-bottom: 10px;
+  }
+}
+
+/* Additional Styles */
+.carousel {
+  position: relative;
+}
+
+.carousel .carousel-item {
+  height: 400px; /* Set a fixed height for the carousel items */
+}
+
+.carousel .carousel-item img {
+  height: 100%;
+  object-fit: cover; /* Ensure images cover the carousel item area */
+}
+
+.carousel-control-prev,
+.carousel-control-next,
+.carousel-indicators {
+  display: none; /* Hide left/right controls and indicators */
+}
+
+/* Extras */
+.gradient-background1 {
+  background: linear-gradient(300deg, #1693a3, #d9dee0, #031a30);
+  background-size: 180% 180%;
+  animation: gradient-animation 6s ease infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-background2 {
+  background: linear-gradient(300deg, #000000, #000000, #efe8e8);
+  background-size: 180% 180%;
+  animation: gradient-animation 6s ease infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Extras */
+.gradient-background3 {
+  background: linear-gradient(300deg, #f7f3f3, #1d0e32, #78087c);
+  background-size: 180% 180%;
+  animation: gradient-animation 6s ease infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.wobble {
+  animation: wobble 3s ease infinite; /* Adjust animation duration */
+}
+
+@keyframes wobble {
+  0% {
+    transform: translateX(0%);
+  }
+  15% {
+    transform: translateX(-25%) rotate(-5deg);
+  }
+  30% {
+    transform: translateX(20%) rotate(3deg);
+  }
+  45% {
+    transform: translateX(-15%) rotate(-3deg);
+  }
+  60% {
+    transform: translateX(10%) rotate(2deg);
+  }
+  75% {
+    transform: translateX(-5%) rotate(-1deg);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.wobble1 {
+  animation: wobble 37s ease infinite; /* Adjust animation duration */
+}
+
+@keyframes wobble {
+  0% {
+    transform: translateX(0%);
+  }
+  15% {
+    transform: translateX(-25%) rotate(-5deg);
+  }
+  30% {
+    transform: translateX(20%) rotate(3deg);
+  }
+  45% {
+    transform: translateX(-15%) rotate(-3deg);
+  }
+  60% {
+    transform: translateX(10%) rotate(2deg);
+  }
+  75% {
+    transform: translateX(-5%) rotate(-1deg);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.zoom {
+  animation: zoom 1.5s ease infinite;
+}
+
+@keyframes zoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Resources.css Styles */
+@keyframes rotate-y {
+  0% {
+    transform: perspective(1000px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(1000px) rotateY(180deg);
+  }
+}
+
+img {
+  backface-visibility: hidden;
+}
+
+img:hover {
+  animation: rotate-y 2s forwards;
+}
+
+.perspective {
+  perspective: 1000px;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+div {
+  backface-visibility: hidden;
+}
+
+.btn {
+  display: inline-block;
+  text-align: center;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 10px; /* Adjust padding for smaller screens */
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .navbar-links li {
+    margin: 5px 0; /* Add space between each link */
+  }
+
+  .navbar-links a {
+    font-size: 1.2rem; /* Increase font size for better readability */
+  }
+
+  .upload-link {
+    margin-top: 10px; /* Add space above the upload button */
+  }
+
+  .navbar-toggle {
+    display: block; /* Show toggle button on small screens */
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-left: auto; /* Align toggle button to the right */
+  }
+
+  .dropdown-menu {
+    position: static; /* Reset position for dropdown menu */
+    display: none; /* Hide dropdown menu by default */
+    margin-top: 10px; /* Add space between dropdown and link */
+  }
+
+  .dropdown-link:hover {
+    background-color: transparent; /* Remove background color on hover */
+  }
+
+  .navbar-links.show {
+    display: flex; /* Show navbar links when .show class is added */
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.absolute {
+  position: absolute;
+  z-index: 10; /* Ensure this value is higher than other elements on the page */
+}
+
+.navbar-logo {
+  height: 12rem;
+  width: 8rem;
+}
+
+/* CSS Adjustments */
+.gallery-image-container {
+  width: 100%;
+  margin-bottom: 1rem; /* Add margin-bottom for spacing */
+}
+
+.gallery-image {
+  max-width: 100%; /* Ensure image doesn't exceed container width */
+  height: auto; /* Maintain aspect ratio */
+}
+
+@media (min-width: 768px) {
+  .gallery-item {
+    max-width: 800px; /* Reduce width for larger screens */
+    margin: 0 auto 2rem; /* Center item and add bottom margin */
+  }
+
+  .gallery-image {
+    max-width: calc(100% - 2rem); /* Adjust image width */
+    height: auto; /* Maintain aspect ratio */
+  }
+}
+
+@media (max-width: 768px) {
+  .social-icons {
+    display: flex; /* Ensure icons are displayed in a row */
+    align-items: center; /* Center items vertically */
+    margin-left: auto; /* Push icons to the right */
+    margin-bottom: 0; /* Remove bottom margin */
+  }
+
+  .social-icons a {
+    margin-right: 10px; /* Add margin between icons */
+  }
+}
+
+.horizontal-rotate {
+  animation: horizontalRotate 3s linear infinite;
+}
+
+@keyframes horizontalRotate {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.horizontal-spin {
+  animation: horizontalSpin 6s linear infinite;
+}
+
+@keyframes horizontalSpin {
+  50% {
+    transform: rotateY(6deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Custom CSS for Navbar */
+.navbar-logo {
+  /* Default styles for larger screens */
+  width: 400px; /* Example width */
+  height: 50px; /* Example height */
+}
+
+@media (max-width: 768px) {
+  /* Adjust dimensions for smaller screens */
+  .navbar-logo {
+    width: 50%; /* Take up full width on smaller screens */
+    height: 30px; /* Maintain aspect ratio */
+  }
+
+  /* Specific styling for the second image */
+  .second-navbar-logo {
+    width: 100%; /* Example width */
+    height: 200px; /* Example height */
+  }
+}
