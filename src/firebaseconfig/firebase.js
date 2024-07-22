@@ -10,7 +10,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { getFirestore, Timestamp } from "firebase/firestore";
+import { getFirestore, Timestamp, getDoc } from "firebase/firestore";
 import { getStorage, ref } from "firebase/storage"; // Add import for storage
 
 // Your Firebase configuration
@@ -46,6 +46,7 @@ export {
   updateProfile,
   db,
   Timestamp,
+  getDoc,
   GoogleAuthProvider,
   storage, // Export storage
   ref,

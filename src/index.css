@@ -28,7 +28,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   margin: 0;
-  background: linear-gradient(300deg, #020006, #eeedf0, #000000);
+  background: linear-gradient(300deg, #7a73c7, #4a18a7, #2b0107);
 }
 
 #root {
@@ -345,9 +345,9 @@ img {
   backface-visibility: hidden;
 }
 
-img:hover {
+/* img:hover {
   animation: rotate-y 2s forwards;
-}
+} */
 
 .perspective {
   perspective: 1000px;
@@ -517,4 +517,138 @@ div {
     display: block; /* Ensure it behaves as a block element */
     margin: 0 auto; /* Center the logo horizontally */
   }
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 300px; /* Set desired height */
+  overflow: hidden;
+  border-radius: 0.7rem; /* Adjust as needed */
+}
+
+.image-container img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+}
+
+/* styles.css */
+/* styles.css */
+/* styles.css */
+.daily-post-image-container {
+  width: 100%;
+  height: 300px; /* Adjust as needed */
+  overflow: hidden;
+  border-radius: 0.7rem; /* Adjust as needed */
+  background-color: #010000; /* Background color for the container */
+  margin-top: 1rem; /* Space above the container */
+  margin-bottom: 1rem; /* Space below the container */
+  display: flex;
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+}
+
+.daily-post-image-container img {
+  max-width: 100%; /* Ensure the image doesn't exceed container width */
+  max-height: 100%; /* Ensure the image doesn't exceed container height */
+  object-fit: contain; /* Ensure the image fits within the container */
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 30px;
+  margin-top: 10px;
+}
+
+/* cancer foundations */
+.foundations {
+  padding: 20px;
+  max-width: 100%; /* Ensure the container doesn't exceed the viewport width */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  text-align: center; /* Ensure center alignment */
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%; /* Ensure the content doesn't exceed the container width */
+  overflow: hidden; /* Prevent overflow */
+}
+
+.section-image {
+  width: 100%;
+  max-width: 500px; /* Default size */
+  height: auto;
+  margin-bottom: 15px;
+}
+
+.section-links {
+  list-style: none;
+  padding: 0;
+  margin: 0; /* Remove default margin */
+}
+
+.section-links li {
+  margin-bottom: 5px;
+}
+
+.section-links a {
+  display: block; /* Ensure links are block-level elements */
+  padding: 10px; /* Adjust padding for better spacing */
+  border-radius: 8px; /* Rounded corners */
+  text-align: center; /* Center text alignment */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease; /* Smooth transitions */
+}
+
+.section-links a:hover {
+  background-color: black;
+  color: white; /* Ensure text color changes on hover */
+}
+
+@media (min-width: 768px) {
+  .section-image {
+    max-width: 700px; /* Larger size for larger screens */
+    margin-bottom: 20px;
+  }
+
+  .section {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-image {
+    max-width: 900px; /* Even larger size for very large screens */
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-size: 32px;
+  }
+}
+
+/* daily posts text styles */
+.centered-content {
+  white-space: pre-line; /* Ensures line breaks are respected */
+  text-align: center; /* Centers the text horizontally */
+  margin: 0; /* Optional: Adjust as needed */
 }

@@ -1,189 +1,200 @@
-import React, { useState, useEffect } from 'react';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
-import { db } from '../firebaseconfig/firebase';
-import { getAuth } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { db } from "../firebaseconfig/firebase";
+import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const ProfileForm = ({ onClose }) => {
-    const [bio, setBio] = useState('');
-    const [name, setName] = useState('');
-    const [nameLowercase, setNameLowercase] = useState('');
-    const [profileImage, setProfileImage] = useState(null);
-    const [profileImageUrl, setProfileImageUrl] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
-    const navigate = useNavigate();
+  const [bio, setBio] = useState("");
+  const [name, setName] = useState("");
+  const [nameLowercase, setNameLowercase] = useState("");
+  const [profileImage, setProfileImage] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const auth = getAuth();
-        const user = auth.currentUser;
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-        if (user) {
-            const fetchProfileData = async () => {
-                try {
-                    const profileRef = doc(db, 'profiles', user.uid);
-                    const profileSnap = await getDoc(profileRef);
-                    if (profileSnap.exists()) {
-                        const data = profileSnap.data();
-                        setName(data.name || '');
-                        setBio(data.bio || '');
-                        setProfileImageUrl(data.profileImageUrl || '');
-                    } else {
-                        console.log('No profile found for current user');
-                    }
-                } catch (error) {
-                    console.error('Error fetching profile:', error);
-                }
-            };
-
-            fetchProfileData();
+    if (user) {
+      const fetchProfileData = async () => {
+        try {
+          const profileRef = doc(db, "profiles", user.uid);
+          const profileSnap = await getDoc(profileRef);
+          if (profileSnap.exists()) {
+            const data = profileSnap.data();
+            setName(data.name || "");
+            setBio(data.bio || "");
+            setProfileImageUrl(data.profileImageUrl || "");
+          } else {
+            console.log("No profile found for current user");
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
         }
-    }, []);
+      };
 
-    // Function to set name and nameLowercase
-    const setNameAndLowercase = (value) => {
-        const lowercaseValue = value.toLowerCase();
-        setName(value);
-        setNameLowercase(lowercaseValue);
-    };
+      fetchProfileData();
+    }
+  }, []);
 
-    const handleProfileSubmit = async () => {
-        setLoading(true);
-        const auth = getAuth();
-        const user = auth.currentUser;
+  // Function to set name and nameLowercase
+  const setNameAndLowercase = (value) => {
+    const lowercaseValue = value.toLowerCase();
+    setName(value);
+    setNameLowercase(lowercaseValue);
+  };
 
-        if (user) {
-            try {
-                const storage = getStorage();
-                let downloadURL = profileImageUrl;
+  const handleProfileSubmit = async () => {
+    setLoading(true);
+    const auth = getAuth();
+    const user = auth.currentUser;
 
-                // Delete previous profile image if exists
-                if (profileImage && profileImageUrl) {
-                    const oldImageRef = ref(storage, profileImageUrl);
-                    await deleteObject(oldImageRef);
-                }
+    if (user) {
+      try {
+        const storage = getStorage();
+        let downloadURL = profileImageUrl;
 
-                // Upload new profile image
-                if (profileImage) {
-                    const storageRef = ref(storage, `images/${user.uid}/${profileImage.name}`);
-                    const uploadTask = uploadBytesResumable(storageRef, profileImage);
+        // Delete previous profile image if exists
+        if (profileImage && profileImageUrl) {
+          const oldImageRef = ref(storage, profileImageUrl);
+          await deleteObject(oldImageRef);
+        }
 
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            setUploadProgress(progress);
-                        },
-                        (error) => {
-                            console.error('Upload failed', error);
-                            setLoading(false);
-                        },
-                        async () => {
-                            downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                            setProfileImageUrl(downloadURL);
+        // Upload new profile image
+        if (profileImage) {
+          const storageRef = ref(
+            storage,
+            `images/${user.uid}/${profileImage.name}`,
+          );
+          const uploadTask = uploadBytesResumable(storageRef, profileImage);
 
-                            // Update profile data in Firestore with name and name_lowercase
-                            await setDoc(doc(db, 'profiles', user.uid), {
-                                bio,
-                                name,
-                                name_lowercase: nameLowercase, // Update name_lowercase
-                                profileImageUrl: downloadURL
-                            });
+          uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(progress);
+            },
+            (error) => {
+              console.error("Upload failed", error);
+              setLoading(false);
+            },
+            async () => {
+              downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              setProfileImageUrl(downloadURL);
 
-                            setLoading(false);
-                            onClose(); // Close the form after successful submission
-                            navigate('/profile'); // Navigate to profile page
-                        }
-                    );
-                } else {
-                    // Update profile without changing the image
-                    await setDoc(doc(db, 'profiles', user.uid), {
-                        bio,
-                        name,
-                        name_lowercase: nameLowercase, // Update name_lowercase
-                        profileImageUrl: downloadURL
-                    });
+              // Update profile data in Firestore with name and name_lowercase
+              await setDoc(doc(db, "profiles", user.uid), {
+                bio,
+                name,
+                name_lowercase: nameLowercase, // Update name_lowercase
+                profileImageUrl: downloadURL,
+                isPublic: true // Add this line to set isPublic to true
+              });
 
-                    setLoading(false);
-                    onClose(); // Close the form after successful submission
-                    navigate('/profile'); // Navigate to profile page
-                }
-            } catch (error) {
-                console.error('Error submitting profile:', error);
-                setLoading(false);
-            }
+              setLoading(false);
+              onClose(); // Close the form after successful submission
+              navigate("/profile"); // Navigate to profile page
+            },
+          );
         } else {
-            console.error('User is not authenticated');
-            setLoading(false);
-        }
-    };
+          // Update profile without changing the image
+          await setDoc(doc(db, "profiles", user.uid), {
+            bio,
+            name,
+            name_lowercase: nameLowercase, // Update name_lowercase
+            profileImageUrl: downloadURL,
+          });
 
-    const handleImageChange = (e) => {
-        if (e.target.files[0]) {
-            setProfileImage(e.target.files[0]);
+          setLoading(false);
+          onClose(); // Close the form after successful submission
+          navigate("/profile"); // Navigate to profile page
         }
-    };
+      } catch (error) {
+        console.error("Error submitting profile:", error);
+        setLoading(false);
+      }
+    } else {
+      console.error("User is not authenticated");
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-                <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setNameAndLowercase(e.target.value)} // Update name and name_lowercase
-                    className="border border-gray-300 p-2 w-full mb-4 rounded-md"
-                    placeholder="Name"
-                />
-                <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="border border-gray-300 p-2 w-full mb-4 rounded-md"
-                    placeholder="Bio"
-                />
-                <input
-                    type="file"
-                    onChange={handleImageChange}
-                    className="border border-gray-300 p-2 w-full mb-4 rounded-md"
-                />
-                {profileImageUrl && (
-                    <img
-                        src={profileImageUrl}
-                        alt="Profile"
-                        className="rounded-full w-24 h-24 object-cover"
-                    />
-                )}
-                {loading && (
-                    <div className="text-center text-teal-600 mb-4">
-                        Uploading...
-                        <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
-                            <div
-                                className="bg-teal-600 h-4 rounded-full"
-                                style={{ width: `${uploadProgress}%` }}
-                            ></div>
-                        </div>
-                    </div>
-                )}
-                <div className="flex justify-end">
-                    <button
-                        className="bg-teal-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-teal-700 transition-colors duration-300 mr-2"
-                        onClick={handleProfileSubmit}
-                        disabled={loading}
-                    >
-                        {profileImageUrl ? 'Change Profile Image' : 'Upload Profile Image'}
-                    </button>
-                    <button
-                        className="bg-red-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-red-700 transition-colors duration-300"
-                        onClick={onClose}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </button>
-                </div>
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      setProfileImage(e.target.files[0]);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="rounded-lg bg-white p-6 shadow-lg">
+        <h2 className="mb-4 text-xl font-semibold">Edit Profile</h2>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setNameAndLowercase(e.target.value)} // Update name and name_lowercase
+          className="mb-4 w-full rounded-md border border-gray-300 p-2"
+          placeholder="Name"
+        />
+        <textarea
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          className="mb-4 w-full rounded-md border border-gray-300 p-2"
+          placeholder="Bio"
+        />
+        <input
+          type="file"
+          onChange={handleImageChange}
+          className="mb-4 w-full rounded-md border border-gray-300 p-2"
+        />
+        {profileImageUrl && (
+          <img
+            src={profileImageUrl}
+            alt="Profile"
+            className="h-24 w-24 rounded-full object-cover"
+          />
+        )}
+        {loading && (
+          <div className="mb-4 text-center text-teal-600">
+            Uploading...
+            <div className="mt-2 h-4 w-full rounded-full bg-gray-200">
+              <div
+                className="h-4 rounded-full bg-teal-600"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
             </div>
+          </div>
+        )}
+        <div className="flex justify-end">
+          <button
+            className="mr-2 rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700"
+            onClick={handleProfileSubmit}
+            disabled={loading}
+          >
+            {profileImageUrl ? "Change Profile Image" : "Upload Profile Image"}
+          </button>
+          <button
+            className="rounded-full bg-red-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-red-700"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </button>
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default ProfileForm;
-
