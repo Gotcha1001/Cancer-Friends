@@ -8,7 +8,12 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { ref, deleteObject } from "firebase/storage";
+import {
+  ref,
+  deleteObject,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import Spinner from "../special-setups/Spinner"; // Import Spinner component
 
 export default function InspireAlter() {
@@ -19,6 +24,11 @@ export default function InspireAlter() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null);
+  const [file, setFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState(""); // New state for image URL
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploading, setUploading] = useState(false); // New state to track if uploading
+  const [updateMethod, setUpdateMethod] = useState(null); // "url" or "file"
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -45,14 +55,15 @@ export default function InspireAlter() {
 
   const handleUpdateClick = (post) => {
     setSelectedPost(post);
+    setImageUrl(post.imgUrl); // Initialize imageUrl with the current post's image URL
+    setUpdateMethod(null); // Reset the update method
     setIsDialogOpen(true);
   };
 
   const handleDeleteClick = async (post) => {
     try {
-      if (post.imgUrl) {
-        // Delete image from storage
-        const imgRef = ref(storage, post.imgUrl);
+      if (post.imagePath) { // Use the storage path to delete the image
+        const imgRef = ref(storage, post.imagePath);
         await deleteObject(imgRef);
       }
       // Delete post from Firestore
@@ -63,24 +74,71 @@ export default function InspireAlter() {
     }
   };
 
-  const handleUpdate = async (event) => {
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
+    setUpdateMethod('file'); // Set update method to file
+  };
+
+  const handleImageUrlChange = (event) => {
+    setImageUrl(event.target.value);
+    setUpdateMethod('url'); // Set update method to URL
+  };
+
+  const handleImageUpdate = async (event) => {
     event.preventDefault();
-    const { id, date, content, imgUrl, likes, postedBy } = selectedPost;
+
+    if (updateMethod === 'file' && file) {
+      // Start the upload process
+      setUploading(true);
+      const storageRef = ref(storage, `images/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        },
+        (error) => {
+          console.error("Upload failed", error);
+          setError("Failed to upload image.");
+          setUploading(false);
+        },
+        async () => {
+          const newImageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          const newImagePath = `images/${file.name}`; // Store the path instead of the full URL
+          await updatePost(selectedPost.id, selectedPost.date, selectedPost.content, newImageUrl, newImagePath, selectedPost.likes, selectedPost.postedBy);
+        }
+      );
+    } else if (updateMethod === 'url' && imageUrl.trim() !== "") {
+      await updatePost(selectedPost.id, selectedPost.date, selectedPost.content, imageUrl, null, selectedPost.likes, selectedPost.postedBy);
+    } else {
+      alert("Please select an image URL or upload a file, not both.");
+    }
+  };
+
+  const updatePost = async (id, date, content, imgUrl, imagePath, likes, postedBy) => {
     try {
       const postRef = doc(db, "inspire", id);
       await updateDoc(postRef, {
         date: Timestamp.fromDate(new Date(date)), // Convert date to Timestamp
         content,
         imgUrl,
+        imagePath, // Save the storage path for later reference
         likes,
         postedBy,
       });
       setIsDialogOpen(false);
+      setFile(null);
+      setImageUrl(""); // Clear the image URL state
+      setUploadProgress(0);
+      setUploading(false); // Reset uploading state
       window.location.reload(); // Refresh the page after update
     } catch (err) {
       console.error("Error updating post:", err);
     }
   };
+
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -97,7 +155,7 @@ export default function InspireAlter() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const nextPage = () =>
     setCurrentPage((prevPage) =>
-      Math.min(prevPage + 1, Math.ceil(posts.length / postsPerPage)),
+      Math.min(prevPage + 1, Math.ceil(posts.length / postsPerPage))
     );
   const prevPage = () =>
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
@@ -167,7 +225,7 @@ export default function InspireAlter() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
           <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
             <h2 className="mb-4 text-2xl font-bold">Update Post</h2>
-            <form onSubmit={handleUpdate}>
+            <form onSubmit={handleImageUpdate}>
               <div className="mb-4">
                 <label
                   htmlFor="date"
@@ -183,10 +241,11 @@ export default function InspireAlter() {
                     new Date(selectedPost.date).toISOString().split("T")[0]
                   }
                   onChange={handleChange}
-                  className="w-full rounded border border-gray-300 p-2"
+                  className="w-full rounded border border-gray-300 px-3 py-2"
                   required
                 />
               </div>
+
               <div className="mb-4">
                 <label
                   htmlFor="content"
@@ -199,10 +258,11 @@ export default function InspireAlter() {
                   name="content"
                   value={selectedPost.content}
                   onChange={handleChange}
-                  className="w-full whitespace-pre-wrap rounded border border-gray-300 p-2"
+                  className="w-full rounded border border-gray-300 px-3 py-2"
                   required
-                ></textarea>
+                />
               </div>
+
               <div className="mb-4">
                 <label
                   htmlFor="imgUrl"
@@ -213,106 +273,86 @@ export default function InspireAlter() {
                 <input
                   type="text"
                   id="imgUrl"
-                  name="imgUrl"
-                  value={selectedPost.imgUrl}
-                  onChange={handleChange}
-                  className="w-full rounded border border-gray-300 p-2"
+                  value={imageUrl}
+                  onChange={(e) => {
+                    setUpdateMethod('url');
+                    handleImageUrlChange(e);
+                  }}
+                  disabled={updateMethod === 'file'}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
                 />
-                {selectedPost.imgUrl && (
-                  <div className="mt-4 flex justify-center">
-                    <img
-                      src={selectedPost.imgUrl}
-                      alt="Post"
-                      className="h-auto w-32 rounded-lg"
-                    />
+              </div>
+
+              <div className="mb-4">
+                <label
+                  htmlFor="file"
+                  className="mb-2 block font-bold text-gray-700"
+                >
+                  Choose file to upload:
+                </label>
+                <input
+                  type="file"
+                  id="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    setUpdateMethod('file');
+                    handleFileChange(e);
+                  }}
+                  disabled={updateMethod === 'url'}
+                  className="w-full rounded border border-gray-300 px-3 py-2"
+                />
+              </div>
+
+              <div className="mb-4">
+                {uploading && (
+                  <div className="text-center text-gray-600">
+                    {`Uploading: ${uploadProgress.toFixed(0)}%`}
                   </div>
                 )}
               </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="likes"
-                  className="mb-2 block font-bold text-gray-700"
-                >
-                  Likes:
-                </label>
-                <input
-                  type="number"
-                  id="likes"
-                  name="likes"
-                  value={selectedPost.likes}
-                  onChange={handleChange}
-                  className="w-full rounded border border-gray-300 p-2"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="postedBy"
-                  className="mb-2 block font-bold text-gray-700"
-                >
-                  Posted By:
-                </label>
-                <input
-                  type="text"
-                  id="postedBy"
-                  name="postedBy"
-                  value={selectedPost.postedBy}
-                  onChange={handleChange}
-                  className="w-full rounded border border-gray-300 p-2"
-                  required
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  className="mr-2 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-700"
-                  onClick={() => setIsDialogOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-700"
-                >
-                  Update
-                </button>
-              </div>
+
+              <button
+                type="submit"
+                className={`${uploading ? "bg-gray-400 cursor-not-allowed" : "bg-teal-500"
+                  } rounded px-4 py-2 text-white hover:bg-teal-700`}
+                disabled={uploading}
+              >
+                {uploading ? "Uploading..." : "Update Post"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setUpdateMethod(null);
+                  setIsDialogOpen(false);
+                }}
+                className="ml-2 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-700"
+              >
+                Cancel
+              </button>
             </form>
           </div>
         </div>
       )}
 
-      {!isDialogOpen && (
-        <div className="mt-4 flex justify-center">
-          <button
-            onClick={prevPage}
-            className={`mr-2 rounded bg-teal-400 px-4 py-2 text-white hover:bg-teal-500 ${currentPage === 1 ? "cursor-not-allowed opacity-50" : ""}`}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <div className="flex">
-            {[...Array(Math.ceil(posts.length / postsPerPage)).keys()].map(
-              (pageNumber) => (
-                <button
-                  key={pageNumber}
-                  onClick={() => paginate(pageNumber + 1)}
-                  className={`mx-2 rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-700 ${currentPage === pageNumber + 1 ? "bg-teal-700" : ""}`}
-                >
-                  {pageNumber + 1}
-                </button>
-              ),
-            )}
-          </div>
-          <button
-            onClick={nextPage}
-            className={`rounded bg-teal-400 px-4 py-2 text-white hover:bg-teal-500 ${currentPage === Math.ceil(posts.length / postsPerPage) ? "cursor-not-allowed opacity-50" : ""}`}
-            disabled={currentPage === Math.ceil(posts.length / postsPerPage)}
-          >
-            Next
-          </button>
-        </div>
-      )}
+      <div className="pagination mt-8">
+        <button
+          onClick={prevPage}
+          disabled={currentPage === 1}
+          className="mr-2 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-700"
+        >
+          Previous
+        </button>
+        <span>
+          Page {currentPage} of {Math.ceil(posts.length / postsPerPage)}
+        </span>
+        <button
+          onClick={nextPage}
+          disabled={currentPage === Math.ceil(posts.length / postsPerPage)}
+          className="ml-2 rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-700"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

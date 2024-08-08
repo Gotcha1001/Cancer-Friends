@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebaseconfig/firebase";
@@ -47,8 +48,11 @@ const Navbar = () => {
   };
 
   const handleMenuToggle = () => {
-    setIsMenuOpen(!isMenuOpen); // Toggle menu visibility
+    console.log("Before toggle:", isMenuOpen);
+    setIsMenuOpen((prev) => !prev);
+    console.log("After toggle:", !isMenuOpen);
   };
+
 
   const closeMenu = () => {
     setIsMenuOpen(false); // Close the menu
@@ -92,7 +96,7 @@ const Navbar = () => {
             onClick={handleMenuToggle}
           >
             <svg
-              className="w-6 h-6"
+              className="w-8 h-8"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -112,18 +116,17 @@ const Navbar = () => {
         <div
           className={`absolute top-full left-0 w-full bg-indigo-800 md:relative md:flex md:w-auto md:bg-transparent ${isMenuOpen ? "block" : "hidden"}`}
         >
-          <div className="flex flex-col items-center md:items-stretch md:flex-row">
+          <div className="flex flex-col items-center md:items-stretch md:flex-row md:flex-wrap">
             {user && (
-              <div className="mt-8 flex w-full items-center justify-center md:mb-0 md:ml-12 md:w-auto md:justify-start md:mr-20 ">
+              <div className="mt-8 flex w-full items-center justify-center md:mb-0 md:ml-12 md:w-auto md:justify-start md:mr-20">
                 <form onSubmit={handleSearch} className="flex items-center">
                   <input
                     type="text"
                     placeholder="Search profiles by name"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="rounded-l-md bg-black px-4 py-2 focus:outline-none"
+                    className="rounded-l-md bg-black px-4 py-2 focus:outline-none shadow-neon"
                     style={{ marginRight: 0 }} // Adjusted margin-right
-
                   />
                   <button
                     type="submit"
@@ -146,9 +149,9 @@ const Navbar = () => {
                     >
                       <button
                         onClick={toggleAdminDropdown}
-                        className="rounded-md bg-black p-2 hover:text-blue-500"
+                        className="rounded-md bg-black p-1 hover:text-blue-500 shadow-neon"
                       >
-                        Admin Actions
+                        Admin
                       </button>
                       {isAdminDropdownOpen && (
                         <ul
@@ -264,7 +267,35 @@ const Navbar = () => {
                       Profile
                     </NavLink>
                   </div>
-                  {/* <div className="navbar-element">
+                  <div className="navbar-element">
+                    <NavLink
+                      to="private-diary"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active-link text-white hover:text-blue-500"
+                          : "text-white hover:text-blue-500"
+                      }
+                      onClick={handleLinkClick}
+                    >
+                      Diary
+                    </NavLink>
+                  </div>
+
+                  <div className="navbar-element">
+                    <NavLink
+                      to="nav-messages"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active-link text-white hover:text-blue-500"
+                          : "text-white hover:text-blue-500"
+                      }
+                      onClick={handleLinkClick}
+                    >
+                      Messages
+                    </NavLink>
+                  </div>
+
+                  <div className="navbar-element">
                     <NavLink
                       to="spinner"
                       className={({ isActive }) =>
@@ -274,51 +305,53 @@ const Navbar = () => {
                       }
                       onClick={handleLinkClick}
                     >
-                      Spin Friend
+                      Game
                     </NavLink>
-                  </div> */}
+                  </div>
                   <div className="navbar-element-welcome">
-                    <span className="mb-3 rounded-md bg-teal-600 p-2 text-white hover:bg-black sm:mr-2">{`Welcome, ${user.email}`}</span>
+                    <span className="mb-3 rounded-md bg-teal-600 p-2 text-white hover:bg-black sm:mr-2 sm:mb-4">
+                      {`Welcome, ${user.email}`}
+                    </span>
                   </div>
-                  <div className="navbar-element">
-                    <button
-                      onClick={logout}
-                      className="text-white hover:text-blue-500"
-                    >
-                      Logout
-                    </button>
-                  </div>
+
+
+                  <button
+                    onClick={logout}
+                    className="navbar-element mt-3 bg-indigo-900 mb-2 text-white px-1 py-1 rounded-md hover:bg-purple-500"
+                  >
+                    Logout
+                  </button>
                 </>
               )}
               {!user && (
-                <div className="navbar-element mb-3">
-                  <NavLink
-                    to="login"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "active-link text-white hover:text-blue-500"
-                        : "text-white hover:text-blue-500"
-                    }
-                    onClick={handleLinkClick}
-                  >
-                    Login
-                  </NavLink>
-                </div>
-              )}
-              {!user && (
-                <div className="navbar-element mb-3">
-                  <NavLink
-                    to="register"
-                    className={({ isActive }) =>
-                      isActive
-                        ? "active-link text-white hover:text-blue-500"
-                        : "text-white hover:text-blue-500"
-                    }
-                    onClick={handleLinkClick}
-                  >
-                    Register
-                  </NavLink>
-                </div>
+                <>
+                  <div className="navbar-element">
+                    <NavLink
+                      to="/login"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active-link text-white hover:text-blue-500"
+                          : "text-white hover:text-blue-500"
+                      }
+                      onClick={handleLinkClick}
+                    >
+                      Login
+                    </NavLink>
+                  </div>
+                  <div className="navbar-element">
+                    <NavLink
+                      to="/register"
+                      className={({ isActive }) =>
+                        isActive
+                          ? "active-link text-white hover:text-blue-500"
+                          : "text-white hover:text-blue-500"
+                      }
+                      onClick={handleLinkClick}
+                    >
+                      Register
+                    </NavLink>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -329,3 +362,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+

@@ -652,3 +652,31 @@ div {
   text-align: center; /* Centers the text horizontally */
   margin: 0; /* Optional: Adjust as needed */
 }
+
+/* .absolute {
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  width: 100%;
+  z-index: 50;
+} */
+
+/* Navbar Styles */
+.navbar {
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 500; /* Ensure it's above the background media */
+  background: rgba(0, 0, 0, 0.5); /* Optional: semi-transparent background */
+  /* Ensure padding or margin does not push it below other content */
+  padding: 10px; /* Adjust as needed */
+}
+
+/* Burger Menu Styles */
+.burger-menu {
+  position: absolute; /* Positioning relative to the navbar */
+  top: 100%; /* Below the navbar */
+  left: 0;
+  width: 100%;
+  z-index: 1; /* Ensure it’s above the navbar */
+}

@@ -102,7 +102,7 @@ const Videos = () => {
           <ul className="divide-gray-200">
             {currentVideos.map((video) => (
               <li key={video.id} className="py-4">
-                <div className="gradient-background2 overflow-hidden rounded-lg shadow-lg">
+                <div className="gradient-background2 overflow-hidden rounded-lg shadow-neon">
                   <VideoEmbed
                     videoUrl={video.videoUrl}
                     className="rounded-t-lg"

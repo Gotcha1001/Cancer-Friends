@@ -38,10 +38,19 @@ const Login = () => {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
-        password,
+        password
       );
       const user = userCredential.user;
-      navigate("/"); // Redirect to home page after successful login
+
+      if (!user.emailVerified) {
+        // Sign out the user and show an alert if email is not verified
+        await signOut(auth);
+        alert("Please verify your email before trying to log in.");
+        return;
+      }
+
+      // Redirect to home page after successful login and email verification
+      navigate("/");
     } catch (error) {
       if (
         error.code === "auth/user-not-found" ||
@@ -49,10 +58,11 @@ const Login = () => {
       ) {
         alert("Incorrect email or password. Please try again or register.");
       } else {
-        alert("Error logging in user: Please check your password ");
+        alert("Error logging in user: Please check your password");
       }
     }
   };
+
 
   const googleProvider = new GoogleAuthProvider();
   const signInWithGoogle = async () => {
@@ -167,3 +177,5 @@ const Login = () => {
 };
 
 export default Login;
+
+

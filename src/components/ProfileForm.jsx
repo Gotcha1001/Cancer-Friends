@@ -137,7 +137,7 @@ const ProfileForm = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
       <div className="rounded-lg bg-white p-6 shadow-lg">
         <h2 className="mb-4 text-xl font-semibold">Edit Profile</h2>
         <input
@@ -182,7 +182,7 @@ const ProfileForm = ({ onClose }) => {
             onClick={handleProfileSubmit}
             disabled={loading}
           >
-            {profileImageUrl ? "Change Profile Image" : "Upload Profile Image"}
+            {profileImageUrl ? "Change Profile" : "Upload Profile"}
           </button>
           <button
             className="rounded-full bg-red-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-red-700"

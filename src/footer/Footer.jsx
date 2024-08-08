@@ -116,6 +116,19 @@ const Footer = () => {
               Cancer Blogs
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/contact-us"
+              onClick={playClickSound}
+              className={({ isActive }) =>
+                isActive
+                  ? "active-footer-link text-gray-900"
+                  : "text-gray-700 hover:text-gray-900"
+              }
+            >
+              Contact Us
+            </NavLink>
+          </li>
         </ul>
 
         {/* Company Logo */}

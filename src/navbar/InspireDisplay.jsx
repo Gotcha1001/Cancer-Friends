@@ -105,7 +105,7 @@ export default function InspireDisplay() {
           currentPosts.map((post, index) => (
             <div
               key={index}
-              className="inspire-post-item mb-4 transform rounded-lg gradient-background2 p-6 shadow-lg transition hover:scale-105"
+              className="inspire-post-item mb-4 transform rounded-lg gradient-background2 p-6 transition hover:scale-105 neon-blue"
             >
               <p className="mb-2 text-2xl font-bold text-white text-center">
                 Date Posted:{" "}

@@ -5,6 +5,7 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
   sendEmailVerification,
+  signOut,
 } from "../firebaseconfig/firebase";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
@@ -40,7 +41,7 @@ export default function Register() {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password,
+        password
       );
       const user = userCredential.user;
 
@@ -56,8 +57,13 @@ export default function Register() {
       setName("");
       setErrorMessage("");
 
-      alert("Registered successfully");
-      navigate("/"); // Redirect to home page after successful registration
+      alert("Registered successfully. Please verify your email.");
+
+      // Sign out the user after registration
+      await signOut(auth);
+
+      // Redirect to login page after registration
+      navigate("/login");
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
         alert("Email is already registered");

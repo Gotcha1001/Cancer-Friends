@@ -19,13 +19,8 @@ import Modal from "../components/Modal";
 import Spinner from "../special-setups/Spinner";
 import quotes from "../quotes";
 import Pagination from "../special-setups/Pagination";
-
-import ProfileForm from "../components/ProfileForm";
-
-import { ref, deleteObject } from "firebase/storage";
-
-
 import { PostContext } from "../App";
+import ProfileForm from "../components/ProfileForm";
 
 const Profile = () => {
   const { profileId: routeProfileId } = useParams();
@@ -39,20 +34,26 @@ const Profile = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentQuote, setCurrentQuote] = useState(""); // State for the current quote
   const [showQuoteModal, setShowQuoteModal] = useState(false); // State for the quote modal
-
-
+  //state for pagination just 2 pieces 
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(2); // Number of posts per page
+  const [postsPerPage] = useState(4); // Number of posts per page
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  //state for Profile changing modal form
+  const [isProfileFormOpen, setIsProfileFormOpen] = useState(false);
+  // state to trigger re-render after profile update
+  // const [profileUpdated, setProfileUpdated] = useState(false);
+  ////////////////////////////////////////////////////////////////////////////////////////
 
 
   const { sharedPosts, setSharedPosts } = useContext(PostContext); //usecontext state
-
   const auth = getAuth();
   const currentUser = auth.currentUser;
   const profileId = routeProfileId || currentUser?.uid;
-
-
   const navigate = useNavigate(); // Add this line
+
+
+
 
   const fetchProfile = async () => {
     setLoadingProfile(true);
@@ -71,7 +72,6 @@ const Profile = () => {
       if (profileSnap.exists()) {
         setProfile({ id: profileSnap.id, ...profileSnap.data() });
         fetchDailyPosts(profileSnap.id);
-        fetchMessages(profileSnap.id); // Fetch messages for this profile
       } else {
         setFetchError(
           "No Profile Yet! Go to the Home page to create your profile.",
@@ -84,6 +84,32 @@ const Profile = () => {
       setLoadingProfile(false);
     }
   };
+
+
+
+
+  /////////////////////////////////////////////////////////////////////
+
+  // const fetchProfileData = async () => {
+  //   const auth = getAuth();
+  //   const user = auth.currentUser;
+
+  //   if (user) {
+  //     try {
+  //       const profileRef = doc(db, "profiles", user.uid);
+  //       const profileSnap = await getDoc(profileRef);
+  //       if (profileSnap.exists()) {
+  //         setProfile(profileSnap.data());
+  //       } else {
+  //         console.log("No profile found for current user");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching profile:", error);
+  //     }
+  //   }
+  // };
+
+  ////////////////////////////////////////////////////////////////
 
   const fetchDailyPosts = async (profileId) => {
     try {
@@ -106,24 +132,11 @@ const Profile = () => {
     }
   };
 
-
-  //////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////
   const getRandomQuote = () => {
     // Use the imported quotes array instead of the hardcoded positiveQuotes array
     const randomIndex = Math.floor(Math.random() * quotes.length);
     setCurrentQuote(quotes[randomIndex]);
     setShowQuoteModal(true); // Open the quote modal
-  };
-
-  ///////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////////////
-  const fetchMessages = async (profileId) => {
-    try {
-      // Implement your logic to fetch messages here
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    }
   };
 
   // Redirect if routeProfileId is not equal to the current profileId
@@ -133,12 +146,13 @@ const Profile = () => {
     }
   }, [routeProfileId, profileId, navigate]);
 
-
+  //////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     if (profileId) {
       fetchProfile();
     }
-  }, [profileId]);
+  }, [profileId]); // Add profileUpdated dependency here
+  //////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -219,6 +233,31 @@ const Profile = () => {
   const handleCloseMessagesModal = () => {
     setShowMessagesModal(false);
   };
+
+
+  ///////////////////////////////////////////////////////////////////////
+  // const handleProfileUpdate = () => {
+  //   fetchProfileData(); // Refresh profile data
+  // };
+
+  ////////////////////////////////////////////////////////////////////////
+
+
+
+  ////////////////////////////////////////////////////////////////////////
+  //function for the Profile form change is open or closed
+  const openProfileForm = () => {
+    setIsProfileFormOpen(true);
+  }
+  // to close the profile updating form
+  const closeProfileForm = () => {
+    setIsProfileFormOpen(false);
+    fetchProfile(); //Refresh profile data 
+
+    // window.location.reload();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
 
   const handleLikePost = async (postId) => {
     try {
@@ -338,27 +377,27 @@ const Profile = () => {
         </div>
       ) : profile ? (
         <>
-
-
           <div className="flex flex-col md:flex-row w-full">
             {/* Profile Section */}
             <div className="flex-auto p-4 md:w-1/3 ">
-              <div className=" gradient-background2 rounded-lg bg-purple-950 p-4 text-center text-white shadow-lg">
-                <h2 className="text-2xl font-semibold ">{profile.name}</h2>
+              <div className=" gradient-background2 rounded-lg bg-purple-950 p-4 text-center text-white shadow-neon">
+                <h2 className="text-2xl font-semibold  rounded-lg  ">{profile.name}</h2>
                 <img
                   src={profile.profileImageUrl || "/default-profile-image.png"}
                   alt="Profile"
-                  className="mx-auto my-4 h-48 w-48 rounded-lg object-cover"
+                  className="mx-auto my-4 h-48 w-48 rounded-lg object-cover shadow-neon"
                 />
                 <p className="gradient-background3 rounded-lg p-3 text-white">
                   {profile.bio}
                 </p>
+
                 {currentUser && currentUser.uid === profile.id && (
                   <div className="relative mt-4 inline-block text-left">
+
                     <button
                       onClick={handleDropdownToggle}
                       type="button"
-                      className="inline-flex w-full items-center justify-center rounded-md bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700"
+                      className="inline-flex w-full items-center justify-center rounded-md bg-teal-600 px-4 py-2 text-white shadow-neon transition-colors duration-300 hover:bg-teal-700"
                       id="options-menu"
                       aria-haspopup="true"
                       aria-expanded="true"
@@ -377,6 +416,7 @@ const Profile = () => {
                         />
                       </svg>
                     </button>
+
 
                     {showDropdown && (
                       <div
@@ -406,12 +446,27 @@ const Profile = () => {
                           >
                             {profile.isPublic ? "Make Private" : "Make Public"}
                           </button>
+
                         </div>
                       </div>
                     )}
+
                   </div>
                 )}
               </div>
+
+
+              {currentUser && currentUser.uid === profile.id && (
+                <div className="flex justify-center mt-4">
+                  <button onClick={openProfileForm} className="btn btn-primary">
+                    Edit Profile
+                  </button>
+                  {isProfileFormOpen && (
+                    <ProfileForm profile={profile} onClose={closeProfileForm} />
+                  )}
+                </div>
+              )}
+
             </div>
 
             {/* Daily Posts Section */}
@@ -419,19 +474,19 @@ const Profile = () => {
               <div className="flex flex-col md:flex-row w-full">
                 <button
                   onClick={getRandomQuote} // Function to get a new quote
-                  className="mb-4 w-full md:w-auto mx-auto md:mx-0  bg-black p-3  hover:bg-fuchsia-900 horizontal-spin  text-purple-700  font-serif rounded"
+                  className="mb-4 w-full md:w-auto mx-auto md:mx-0  bg-black p-3  hover:bg-fuchsia-900 horizontal-spin  text-purple-700  font-serif rounded shadow-neon"
                 >
                   Get New Quote
                 </button>
               </div>
-              <h3 className="zoom bg-black mb-2 rounded-md p-2 text-center font-sans text-xl font-extrabold text-white hover:font-serif ">
+              <h3 className="zoom bg-black mb-2 rounded-md p-2 text-center font-sans text-xl font-extrabold text-white hover:font-serif shadow-neon ">
                 Daily Posts
               </h3>
               <ul>
                 {currentPosts.map((post) => (
                   <li
                     key={post.id}
-                    className="gradient-background3 relative mx-auto mb-4 max-w-sm rounded-md p-4 text-white shadow-lg md:max-w-full"
+                    className="gradient-background3 relative mx-auto mb-4 max-w-sm rounded-md p-4 text-white md:max-w-full"
                   >
                     {currentUser && currentUser.uid === profile.id && (
                       <button
@@ -456,11 +511,11 @@ const Profile = () => {
                       </button>
                     )}
                     {post.imgUrl && (
-                      <div className="daily-post-image-container mx-auto " >
+                      <div className="daily-post-image-container mx-auto  " >
                         <img
                           src={post.imgUrl}
                           alt="Post"
-                          className="daily-post-image mt-2"
+                          className="daily-post-image mt-2 "
                         />
                       </div>
                     )}
@@ -468,7 +523,7 @@ const Profile = () => {
                     <p className="mt-3 text-xs text-gray-500">
                       {new Date(post.date.seconds * 1000).toLocaleDateString()}
                     </p>
-                    <div className="mt-4 flex items-center justify-between">
+                    <div className="mt-4 flex items-center justify-between ">
                       <button
                         onClick={() => handleLikePost(post.id)}
                         className="rounded bg-transparent text-red-500 hover:text-red-700 zoom"
@@ -496,11 +551,8 @@ const Profile = () => {
                 />
               </ul>
             </div>
-
-
-
-
           </div>
+
 
           {/* Modals */}
           {showMessagesModal && (
@@ -511,7 +563,6 @@ const Profile = () => {
               </div>
             </Modal>
           )}
-
           {dialogOpen && (
             <Modal onClose={handleCloseDialog}>
               <DailyPostForm
@@ -525,8 +576,6 @@ const Profile = () => {
       ) : (
         <p className="text-2xl">Loading profile...</p>
       )}
-
-
       {showQuoteModal && (
         <Modal onClose={() => setShowQuoteModal(false)}>
           <div className="p-4 gradient-background3 rounded-lg">
@@ -537,19 +586,6 @@ const Profile = () => {
         </Modal>
       )}
 
-      {/* Message Modal 
-      {showMessagesModal && (
-        <Modal onClose={handleCloseMessagesModal}>
-          <Messages />
-        </Modal>
-      )}*/}
-
-      {/* Dialog for adding daily posts 
-      {dialogOpen && (
-        <Modal onClose={handleCloseDialog}>
-          <DailyPostForm onSubmit={handlePostSubmit} />
-        </Modal>
-      )}*/}
 
 
     </div>

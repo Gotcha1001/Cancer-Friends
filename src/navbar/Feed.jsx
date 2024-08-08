@@ -13,54 +13,67 @@ import { db } from "../firebaseconfig/firebase"; // Adjust the import path as pe
 import { getAuth } from "firebase/auth";
 import { PostContext } from "../App";
 import Pagination from "../special-setups/Pagination";
+import Spinner from "../special-setups/Spinner";
 
 
 const Feed = () => {
-
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(5); // Number of posts per page
-
-
   const { sharedPosts, setSharedPosts } = useContext(PostContext);
+  const [loading, setLoading] = useState(true);
+
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
   const isAdmin = currentUser?.email === "admin@example.com"; // Replace with your admin check logic
 
   useEffect(() => {
-    fetchSharedPosts(); // Initial fetch when component mounts
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      await fetchSharedPosts();
+      setLoading(false);
+    };
+
+    fetchData(); // Initial fetch when component mounts
+  }, [currentPage]);
+
+  useEffect(() => {
+    console.log("Scrolling to top due to page change:", currentPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   const fetchSharedPosts = async () => {
     try {
       const sharedPostsRef = collection(db, "shared-posts");
-      const querySnapshot = await getDocs(sharedPostsRef);
+      const postsQuery = query(
+        sharedPostsRef,
+      );
+      const querySnapshot = await getDocs(postsQuery);
 
-      let posts = [];
-      for (const doc of querySnapshot.docs) {
+      const fetchedPosts = [];
+      const profilePromises = querySnapshot.docs.map(async (doc) => {
         const postData = doc.data();
-        const profileId = postData.profileId;
-
-        // Fetch the user's name from the profiles collection
-        const profileRef = firestoreDoc(db, "profiles", profileId);
+        const profileRef = firestoreDoc(db, "profiles", postData.profileId);
         const profileDoc = await getDoc(profileRef);
 
         if (profileDoc.exists()) {
-          const profileData = profileDoc.data();
-          const postWithProfile = {
+          return {
             id: doc.id,
             ...postData,
-            name: profileData.name, // Add the name to the post data
+            name: profileDoc.data().name
           };
-          posts.push(postWithProfile);
+        } else {
+          return null;
         }
-      }
+      });
 
-      // Sort posts by date in descending order
-      posts.sort((a, b) => b.date.seconds - a.date.seconds);
+      const profiles = await Promise.all(profilePromises);
+      fetchedPosts.push(...profiles.filter(post => post !== null));
 
-      setSharedPosts(posts);
-      console.log("Fetched shared posts successfully:", posts);
+
+      setSharedPosts(fetchedPosts.sort((a, b) => b.date.seconds - a.date.seconds));
+
+      console.log("Fetched shared posts successfully:", fetchedPosts);
     } catch (error) {
       console.error("Error fetching shared posts:", error);
     }
@@ -170,10 +183,16 @@ const Feed = () => {
   const prevPage = () => setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
 
 
-  useEffect(() => {
-    console.log("Scrolling to top due to page change:", currentPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentPage]);
+  if (loading) {
+    return (
+      <div className="text-center">
+        <Spinner />
+        <p>Loading Inspirations... Please wait.</p>
+      </div>
+    );
+  }
+
+
 
 
 
@@ -181,14 +200,14 @@ const Feed = () => {
     <div className="container mx-auto mb-10 mt-10 flex flex-col items-center">
       <div className="w-full max-w-3xl mx-auto rounded-xl p-4">
         <div className="gradient-background mx-auto rounded-md p-4">
-          <h3 className="zoom mb-4 rounded-md p-3 text-center text-2xl font-extrabold text-white hover:bg-black">
+          <h3 className="zoom mb-4 rounded-md p-3 text-center text-2xl font-extrabold text-white hover:bg-black shadow-[0_0_80px_purple]">
             Shared Posts
           </h3>
           {sharedPosts.length > 0 ? (
             currentPosts.map((post, index) => (
               <div
                 key={`${post.id}-${index}`}
-                className="post-container gradient-background2 mb-6 rounded-lg p-4 shadow-md"
+                className="post-container gradient-background2 mb-6 rounded-lg p-4 shadow-[0_0_80px_purple]"
               >
                 <div className="mb-2 flex items-center justify-between">
                   <h4 className="text-lg font-semibold">{post.title}</h4>

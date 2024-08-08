@@ -30,7 +30,10 @@ import CancerHospitals from './footer/CancerHospitals';
 import ChildrenCancerHomes from './footer/ChildrenCancerHomes';
 import Resources from './footer/Resources';
 import CancerBlogs from './footer/CancerBlogs';
-import Spinner from "./navbar/Spinner";
+import SpinnerGame from "./navbar/SpinnerGame";
+import NavMessages from "./navbar/NavMessages";
+import ContactUs from "./footer/ContactUs";
+import PrivateDiary from './navbar/PrivateDiary';
 
 
 
@@ -60,6 +63,12 @@ const router = createBrowserRouter([
       { path: "inspire-alter", element: <InspireAlter /> },
       { path: "feed", element: <Feed /> },
       { path: "foundations", element: <Foundations /> },
+      { path: "nav-messages", element: <NavMessages /> },
+      { path: "contact-us", element: <ContactUs /> },
+      { path: "private-diary", element: <PrivateDiary /> },
+
+
+
 
       { path: "child-cancer", element: <ChildCancer /> },
       { path: "research", element: <Research /> },
@@ -67,7 +76,7 @@ const router = createBrowserRouter([
       { path: "children-cancer-homes", element: <ChildrenCancerHomes /> },
       { path: "resources", element: <Resources /> },
       { path: "cancer-blogs", element: <CancerBlogs /> },
-      { path: "spinner", element: <Spinner /> },
+      { path: "spinner", element: <SpinnerGame /> },
     ],
   },
 ]);

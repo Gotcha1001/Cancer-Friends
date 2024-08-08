@@ -8,11 +8,12 @@ import Spinner from "../special-setups/Spinner";
 const Home = () => {
   const adminEmail = "admin@example.com";
 
-  const [backgroundImageUrl, setBackgroundImageUrl] = useState("");
+  const [backgroundMediaUrl, setBackgroundMediaUrl] = useState(""); // URL of the background media
+  const [isVideoBackground, setIsVideoBackground] = useState(false); // Boolean to check if the background is a video
   const [mainImageUrl, setMainImageUrl] = useState("");
   const [showBackgroundDialog, setShowBackgroundDialog] = useState(false);
   const [showMainImageDialog, setShowMainImageDialog] = useState(false);
-  const [newImageUrl, setNewImageUrl] = useState("");
+  const [newMediaUrl, setNewMediaUrl] = useState(""); // Temporary state for the new URL input by the admin
   const [isAdmin, setIsAdmin] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [showProfileDialog, setShowProfileDialog] = useState(false); // State to manage showing the profile dialog
@@ -32,26 +33,28 @@ const Home = () => {
       }
     });
 
-    const fetchBackgroundImages = async () => {
+    const fetchBackgroundMedia = async () => {
       try {
         const docRef = doc(collection(db, "settings"), "background");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setBackgroundImageUrl(data.backgroundImageUrl || "");
+          setBackgroundMediaUrl(data.backgroundMediaUrl || "");
           setMainImageUrl(data.mainImageUrl || "");
+          setIsVideoBackground(data.isVideoBackground || false); // Check if background is a video
         } else {
-          setBackgroundImageUrl("");
+          setBackgroundMediaUrl("");
           setMainImageUrl("");
+          setIsVideoBackground(false);
         }
       } catch (error) {
-        console.error("Error fetching background images:", error);
+        console.error("Error fetching background media:", error);
       } finally {
         setIsLoading(false); // Set loading to false after fetching
       }
     };
 
-    fetchBackgroundImages();
+    fetchBackgroundMedia();
 
     return unsubscribe;
   }, []);
@@ -71,21 +74,27 @@ const Home = () => {
   };
 
   const handleBackgroundUrlSubmit = async () => {
-    setBackgroundImageUrl(newImageUrl);
+    const isVideo = newMediaUrl.endsWith(".mp4");
+    setBackgroundMediaUrl(newMediaUrl);
+    setIsVideoBackground(isVideo);
     setShowBackgroundDialog(false);
-    setNewImageUrl("");
+    setNewMediaUrl("");
 
     const docRef = doc(collection(db, "settings"), "background");
-    await setDoc(docRef, { backgroundImageUrl: newImageUrl, mainImageUrl }); // Update only backgroundImageUrl
+    await setDoc(docRef, {
+      backgroundMediaUrl: newMediaUrl,
+      mainImageUrl,
+      isVideoBackground: isVideo
+    }); // Update background media URL and type
   };
 
   const handleMainImageUrlSubmit = async () => {
-    setMainImageUrl(newImageUrl);
+    setMainImageUrl(newMediaUrl);
     setShowMainImageDialog(false);
-    setNewImageUrl("");
+    setNewMediaUrl("");
 
     const docRef = doc(collection(db, "settings"), "background");
-    await setDoc(docRef, { backgroundImageUrl, mainImageUrl: newImageUrl }); // Update only mainImageUrl
+    await setDoc(docRef, { backgroundMediaUrl, mainImageUrl: newMediaUrl }); // Update only mainImageUrl
   };
 
   const openProfileDialog = () => {
@@ -97,241 +106,225 @@ const Home = () => {
   }
 
   return (
-    <div
-      className="relative flex min-h-screen flex-col items-center justify-start p-4"
-      style={{
-        backgroundImage: `url(${backgroundImageUrl})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundAttachment: "fixed",
-        filter: "brightness(90%)", // slightly reduce brightness
-      }}
-    >
-      {currentUser === adminEmail && (
-        <>
-          <button
-            className="relative left-4 top-3 z-10 mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700 md:left-3"
-            onClick={() => setShowBackgroundDialog(true)}
-          >
-            Change Background
-          </button>
-          <button
-            className="relative left-4 top-3 z-10 mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700 md:left-3"
-            onClick={() => setShowMainImageDialog(true)}
-          >
-            Change Main Image
-          </button>
-        </>
-      )}
-
-      <h1 className="gradient-background1 mb-8 rounded-full p-3 text-center text-3xl font-bold text-white hover:bg-teal-600 md:text-4xl">
-        CANCER FRIENDS
-      </h1>
-
-      {/* Main Image Changeable */}
-      <div className="mb-8 w-full max-w-xl md:w-3/4">
-        <img
-          src={mainImageUrl}
-          alt="Main Image"
-          className="zoom mx-auto rounded-lg shadow-lg"
-          style={{ maxWidth: "100%" }}
+    <div className="relative flex min-h-screen flex-col items-center justify-start p-4">
+      {isVideoBackground ? (
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          src={backgroundMediaUrl}
+          autoPlay
+          loop
+          muted
         />
-      </div>
-
-      {/* Profile Button */}
-      {currentUser && (
-        <>
-          {hasProfile ? (
-            <button
-              className="mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700"
-              onClick={openProfileDialog}
-            >
-              Change Profile
-            </button>
-          ) : (
-            <button
-              className="zoom mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-2xl transition-colors duration-300 hover:bg-black"
-              onClick={openProfileDialog}
-            >
-              Create Profile
-            </button>
-          )}
-        </>
+      ) : (
+        <div
+          className="absolute inset-0 w-full h-full"
+          style={{
+            backgroundImage: `url(${backgroundMediaUrl})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+            filter: "brightness(90%)", // slightly reduce brightness
+          }}
+        />
       )}
+      <div className="relative z-10 flex flex-col items-center justify-start w-full h-full">
+        {currentUser === adminEmail && (
+          <>
+            <button
+              className="relative left-4 top-3 z-10 mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700 md:left-3"
+              onClick={() => setShowBackgroundDialog(true)}
+            >
+              Change Background
+            </button>
+            <button
+              className="relative left-4 top-3 z-10 mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700 md:left-3"
+              onClick={() => setShowMainImageDialog(true)}
+            >
+              Change Main Image
+            </button>
+          </>
+        )}
 
-      {/* Profile Creation Form Dialog */}
-      {showProfileDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <ProfileForm onClose={() => setShowProfileDialog(false)} />
-          </div>
-        </div>
-      )}
+        <h1 className="gradient-background1 mb-8 rounded-full p-3 text-center text-3xl font-bold text-white hover:bg-teal-600 md:text-4xl">
+          CANCER FRIENDS
+        </h1>
 
-      {/* Background Carousel */}
-      <Carousel
-        className="mb-8 w-full md:w-3/4"
-        style={{ maxWidth: "600px" }}
-        interval={1000}
-      >
-        <Carousel.Item>
+        {/* Main Image Changeable */}
+        <div className="mb-8 w-full max-w-xl md:w-3/4">
           <img
-            className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-            src="https://images.pexels.com/photos/3900468/pexels-photo-3900468.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="First slide"
-          />
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-            src="https://images.pexels.com/photos/5588323/pexels-photo-5588323.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Second slide"
-          />
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-            src="https://images.pexels.com/photos/6984616/pexels-photo-6984616.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Third slide"
-          />
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-            src="https://images.pexels.com/photos/6303604/pexels-photo-6303604.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Fourth slide"
-          />
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-            src="https://images.pexels.com/photos/8385217/pexels-photo-8385217.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Fifth slide"
-          />
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-            src="https://images.pexels.com/photos/5702166/pexels-photo-5702166.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Sixth slide"
-          />
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
-            src="https://images.pexels.com/photos/6203418/pexels-photo-6203418.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Sixth slide"
-          />
-        </Carousel.Item>
-      </Carousel>
-      {/* Artwork Grid */}
-      <div className="mt-4 grid w-full grid-cols-1 gap-4 md:w-3/4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <img
-            className="object-co h-full w-full"
-            src="https://images.pexels.com/photos/5483025/pexels-photo-5483025.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Artwork"
+            src={mainImageUrl}
+            alt="Main Image"
+            className="zoom mx-auto rounded-lg shadow-lg"
+            style={{ maxWidth: "100%" }}
           />
         </div>
-        <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <img
-            className="h-full w-full object-cover"
-            src="https://images.pexels.com/photos/4276425/pexels-photo-4276425.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Artwork"
-          />
-        </div>
-        <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <img
-            className="h-full w-full object-cover"
-            src="https://images.pexels.com/photos/9758218/pexels-photo-9758218.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Artwork"
-          />
-        </div>
-        <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <img
-            className="h-full w-full object-cover"
-            src="https://images.pexels.com/photos/6984608/pexels-photo-6984608.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Artwork"
-          />
-        </div>
-        <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <img
-            className="h-full w-full object-cover"
-            src="https://images.pexels.com/photos/1704120/pexels-photo-1704120.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Artwork"
-          />
-        </div>
-        <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
-          <img
-            className="h-full w-full object-cover"
-            src="https://images.pexels.com/photos/4684178/pexels-photo-4684178.jpeg?auto=compress&cs=tinysrgb&w=600"
-            alt="Artwork"
-          />
-        </div>
-      </div>
 
-      {/* Background Image Dialog */}
-      {showBackgroundDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-2xl font-semibold">
-              Change Background Image
-            </h2>
-            <input
-              type="url"
-              className="mb-4 w-full rounded border p-2"
-              placeholder="Enter Image URL"
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-            />
-            <div className="flex justify-between">
+        {/* Profile Button */}
+        {currentUser && (
+          <>
+            {hasProfile ? (
               <button
-                className="rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700"
-                onClick={handleBackgroundUrlSubmit}
+                className=" animate-bounce mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700"
+                onClick={openProfileDialog}
               >
-                Save
+                Change Profile
               </button>
+            ) : (
               <button
-                className="rounded-full bg-red-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-red-700"
-                onClick={() => setShowBackgroundDialog(false)}
+                className="zoom mb-4 rounded-full bg-teal-600 px-4 py-2 text-white shadow-2xl transition-colors duration-300 hover:bg-black"
+                onClick={openProfileDialog}
               >
-                Cancel
+                Create Profile
               </button>
+            )}
+          </>
+        )}
+
+        {/* Profile Creation Form Dialog */}
+        {showProfileDialog && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+              <ProfileForm onClose={() => setShowProfileDialog(false)} />
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Main Image Dialog */}
-      {showMainImageDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-2xl font-semibold">Change Main Image</h2>
-            <input
-              type="url"
-              className="mb-4 w-full rounded border p-2"
-              placeholder="Enter Image URL"
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
+        {/* Background Carousel */}
+        <Carousel
+          className="mb-8 w-full md:w-3/4"
+          style={{ maxWidth: "600px" }}
+          interval={1000}
+        >
+          <Carousel.Item>
+            <img
+              className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+              src="https://images.pexels.com/photos/3900468/pexels-photo-3900468.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="First slide"
             />
-            <div className="flex justify-between">
-              <button
-                className="rounded-full bg-teal-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-teal-700"
-                onClick={handleMainImageUrlSubmit}
-              >
-                Save
-              </button>
-              <button
-                className="rounded-full bg-red-600 px-4 py-2 text-white shadow-lg transition-colors duration-300 hover:bg-red-700"
-                onClick={() => setShowMainImageDialog(false)}
-              >
-                Cancel
-              </button>
-            </div>
+          </Carousel.Item>
+          <Carousel.Item>
+            <img
+              className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+              src="https://images.pexels.com/photos/5588323/pexels-photo-5588323.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Second slide"
+            />
+          </Carousel.Item>
+          <Carousel.Item>
+            <img
+              className="d-block w-full transform rounded-lg shadow-lg transition-transform duration-300 hover:scale-105"
+              src="https://images.pexels.com/photos/6984616/pexels-photo-6984616.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Third slide"
+            />
+          </Carousel.Item>
+        </Carousel>
+
+        {/* Artwork Grid */}
+        <div className="mt-4 grid w-full grid-cols-1 gap-4 md:w-3/4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
+            <img
+              className="object-co h-full w-full"
+              src="https://images.pexels.com/photos/5483025/pexels-photo-5483025.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Artwork"
+            />
+          </div>
+          <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
+            <img
+              className="h-full w-full object-cover"
+              src="https://images.pexels.com/photos/4276425/pexels-photo-4276425.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Artwork"
+            />
+          </div>
+          <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
+            <img
+              className="h-full w-full object-cover"
+              src="https://images.pexels.com/photos/9758218/pexels-photo-9758218.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Artwork"
+            />
+          </div>
+          <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
+            <img
+              className="h-full w-full object-cover"
+              src="https://images.pexels.com/photos/6984608/pexels-photo-6984608.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Artwork"
+            />
+          </div>
+          <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
+            <img
+              className="h-full w-full object-cover"
+              src="https://images.pexels.com/photos/1704120/pexels-photo-1704120.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Artwork"
+            />
+          </div>
+          <div className="h-64 w-full transform overflow-hidden rounded-lg shadow-lg transition-transform duration-300 hover:scale-105">
+            <img
+              className="h-full w-full object-cover"
+              src="https://images.pexels.com/photos/4684178/pexels-photo-4684178.jpeg?auto=compress&cs=tinysrgb&w=600"
+              alt="Artwork"
+            />
           </div>
         </div>
-      )}
+
+        {/* Background Change Dialog */}
+        {showBackgroundDialog && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+              <h2 className="mb-4 text-xl font-bold">Change Background</h2>
+              <input
+                type="text"
+                value={newMediaUrl}
+                onChange={(e) => setNewMediaUrl(e.target.value)}
+                placeholder="Enter image or video URL"
+                className="mb-4 w-full rounded border border-gray-300 px-3 py-2"
+              />
+              <div className="flex justify-end">
+                <button
+                  className="mr-2 rounded bg-gray-300 px-4 py-2"
+                  onClick={() => setShowBackgroundDialog(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700"
+                  onClick={handleBackgroundUrlSubmit}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Image Change Dialog */}
+        {showMainImageDialog && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+              <h2 className="mb-4 text-xl font-bold">Change Main Image</h2>
+              <input
+                type="text"
+                value={newMediaUrl}
+                onChange={(e) => setNewMediaUrl(e.target.value)}
+                placeholder="Enter image URL"
+                className="mb-4 w-full rounded border border-gray-300 px-3 py-2"
+              />
+              <div className="flex justify-end">
+                <button
+                  className="mr-2 rounded bg-gray-300 px-4 py-2"
+                  onClick={() => setShowMainImageDialog(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="rounded bg-teal-600 px-4 py-2 text-white hover:bg-teal-700"
+                  onClick={handleMainImageUrlSubmit}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

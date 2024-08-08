@@ -51,6 +51,9 @@ const Messages = ({ profileId }) => {
           }
         }
 
+        // Sort messages by timestamp in descending order
+        messagesData.sort((a, b) => b.timestamp - a.timestamp);
+
         setMessages(messagesData);
       } catch (error) {
         console.error("Error fetching messages:", error);

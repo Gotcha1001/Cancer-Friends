@@ -34,16 +34,16 @@ const UserProfileSearchResults = () => {
 
   return (
     <div className="container mx-auto mt-8">
-      <h2 className="mb-4 text-2xl font-bold text-black">
+      <h2 className="mb-4 text-2xl font-bold text-black ">
         Search Results for "{searchTerm}"
       </h2>
 
       {/* Add a small image before the search results */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-6 zoom">
         <img
           src="https://github.com/Gotcha1001/My-Images-for-sites-Wes/blob/main/Gamingpic.jpg?raw=true" // Replace with your image path
           alt="Search Results"
-          className="w-24 h-24 object-cover rounded-full"
+          className="w-24 h-24 object-cover rounded-full shadow-[0_0_40px_purple]"
         />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -51,13 +51,13 @@ const UserProfileSearchResults = () => {
           searchResults.map((profile) => (
             <div key={profile.id}>
               <Link to={`/profile/${profile.id}`}>
-                <div className="gradient-background3 mb-3 ml-4 rounded-md border border-white p-1 text-white shadow">
+                <div className="gradient-background3 mb-3 ml-4 rounded-md   p-1 text-white shadow-sky">
                   <h3 className="mb-2 text-lg font-bold">{profile.name}</h3>
                   {/* Display additional profile details as needed */}
                 </div>
               </Link>
               <button
-                className="gradient-background2 zoom focus:shadow-outline mb-2 ml-4 rounded px-2 py-2 font-bold text-white hover:bg-purple-900 focus:outline-none"
+                className="gradient-background2 zoom focus:shadow-outline mb-5 ml-4 rounded px-2 py-2 font-bold text-white hover:bg-purple-900 focus:outline-none shadow-neon"
                 onClick={() => handleMessaging(profile)}
               >
                 Message
