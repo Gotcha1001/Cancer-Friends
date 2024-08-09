@@ -95,7 +95,7 @@ body {
 .active-footer-link {
   background-color: teal;
   color: white !important;
-  padding: 6px;
+  padding: 2px;
   border-radius: 4px;
 }
 
@@ -679,4 +679,13 @@ div {
   left: 0;
   width: 100%;
   z-index: 1; /* Ensure it’s above the navbar */
+}
+
+.welcome {
+  background-color: transparent; /* Make background transparent */
+  color: #06b6d4;
+}
+
+body {
+  overflow-x: hidden;
 }

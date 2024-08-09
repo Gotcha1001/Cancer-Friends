@@ -420,7 +420,7 @@ const Profile = () => {
 
                     {showDropdown && (
                       <div
-                        className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
+                        className="absolute right-0 mt-2 w-38 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5"
                         role="menu"
                         aria-orientation="vertical"
                         aria-labelledby="options-menu"
@@ -471,7 +471,7 @@ const Profile = () => {
 
             {/* Daily Posts Section */}
             <div className="flex-auto p-4 md:w-2/3 ">
-              <div className="flex flex-col md:flex-row w-full">
+              <div className="w-full flex justify-center"> {/* Centering the button */}
                 <button
                   onClick={getRandomQuote} // Function to get a new quote
                   className="mb-4 w-full md:w-auto mx-auto md:mx-0  bg-black p-3  hover:bg-fuchsia-900 horizontal-spin  text-purple-700  font-serif rounded shadow-neon"

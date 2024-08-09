@@ -85,8 +85,8 @@ const SpinnerGame = () => {
 
     return (
         <div className="flex flex-col items-center justify-center  gradient-background2 px-4">
-            <div className="text-center w-full max-w-screen-sm">
-                <h2 className="animate-bounce text-2xl font-serif md:text-4xl  font-bold text-gray-400 mt-4 md:mt-2 lg:mt-2 xl:mt-2">
+            <div className="text-center w-full max-w-screen-sm mt-4">
+                <h2 className="animate-bounce mt-14 text-2xl font-serif md:text-4xl  font-bold text-gray-400  md:mt-2 lg:mt-2 xl:mt-2">
                     Spin the wheel to find a friend who needs you today
                 </h2>
                 <p className='mt-4 text-gray-500 text-xs p-8 shadow-[0_0_10px_purple]   rounded-2xl'>

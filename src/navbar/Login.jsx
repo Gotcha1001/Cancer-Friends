@@ -17,6 +17,9 @@ const Login = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
+  const adminEmail = "admin@example.com";
+
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -42,7 +45,8 @@ const Login = () => {
       );
       const user = userCredential.user;
 
-      if (!user.emailVerified) {
+      // Skip email verification check for the admin email
+      if (user.email !== adminEmail && !user.emailVerified) {
         // Sign out the user and show an alert if email is not verified
         await signOut(auth);
         alert("Please verify your email before trying to log in.");
@@ -52,7 +56,10 @@ const Login = () => {
       // Redirect to home page after successful login and email verification
       navigate("/");
     } catch (error) {
-      if (
+      // Handle errors for admin email separately
+      if (email === adminEmail) {
+        alert("Admin login error: Please check your password or contact support.");
+      } else if (
         error.code === "auth/user-not-found" ||
         error.code === "auth/wrong-password"
       ) {
@@ -62,6 +69,7 @@ const Login = () => {
       }
     }
   };
+
 
 
   const googleProvider = new GoogleAuthProvider();
